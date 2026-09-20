@@ -51,13 +51,13 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 
 ## 残している lint 警告
 
-2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。
+2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。I2 で `RedundantLabel` を直し、**警告 16**。
 
 | 警告 | 件数 | 残す理由 |
 |---|---|---|
 | `GradleDependency`・`NewerVersionAvailable`・`AndroidGradlePluginVersion`（core-ktx・lifecycle・activity-compose・Compose BOM・androidx.test・Kotlin の compose プラグイン・Kover 0.9.9・Gradle 9.7.1 が出ている） | 9 | 版はテンプレートの生成値を採用し、上げるときは AGP Upgrade Assistant を使う（規約 §6.1）。依存を足す I3 以降で、上げるかどうかをまとめて判断する |
 | `UnusedResources`（テンプレートの `colors.xml` の 7 色） | 7 | テンプレートのまま。I6（仕上げ）で整理する |
-| `RedundantLabel`（`MainActivity` の `android:label` がアプリ名と同じ） | 1 | テンプレートのまま。I2 でマニフェストを触るときに直す |
+| ~~`RedundantLabel`（`MainActivity` の `android:label` がアプリ名と同じ）~~ | 0 | I2 で直した（`MainActivity` の `android:label` を削除） |
 
 ## アプリ固有の知見・インシデント
 

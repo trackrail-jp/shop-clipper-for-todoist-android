@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ShopClipper</string>
+    <!-- Label shown in the Android share sheet (plan D1) -->
+    <string name="share_label">ショップクリップ</string>
 </resources>

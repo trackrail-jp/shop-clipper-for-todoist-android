@@ -8,7 +8,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
 - **GitHub**: `trackrail-jp/shop-clipper-for-todoist-android`（公開・MIT © 2026 TrackRail）を受け入れ後に作って push する予定（計画書 D4）。まだリモートは無い
 - **配布**: adb で自分の Pixel に入れる（計画書 D3）。Google Play は別途判断
-- **状態**: 開発中（I1＝新規作成）
+- **状態**: 開発中（I3＝純粋ロジックと単体テストまで完了。次は I4＝設定画面とトークンの保存）
 
 ## 規約からの例外
 
@@ -26,6 +26,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 | Gradle Daemon JVM | `gradle/gradle-daemon-jvm.properties` の `toolchainVersion=25`（テンプレートが生成。`settings.gradle.kts` に foojay-resolver-convention 1.0.0） |
 | CLI の `JAVA_HOME` | Android Studio 同梱の JBR 25（`C:\Program Files\Android\Android Studio\jbr`）。Gradle 9.1 以上のため（規約 §7.2）。Daemon JVM の条件もこれで満たし、JDK の追加ダウンロードは起きない |
 | 主な依存 | Compose BOM 2026.02.01・Material 3・activity-compose 1.8.0・core-ktx 1.10.1・lifecycle-runtime-ktx 2.6.1（いずれもテンプレートの生成値＝規約 §6.1） |
+| 追加した依存（I3） | kotlinx-serialization-json **1.9.0**＋コンパイラ プラグイン **2.2.10**（AGP 9.4.1 の built-in Kotlin が使う KGP が 2.2.10 のため同じ版。実行時ライブラリは Kotlin 2.2 系で作られた最後の版＝1.10.0 以降は Kotlin 2.3）／ kotlinx-coroutines-test **1.11.0**（テストのみ） |
 | テスト | JVM 単体テスト（JUnit 4.13.2）＋ Kover 0.9.8（C1 90%） |
 | Minimum SDK をウィザード既定から変えた理由 | 既定のまま |
 
@@ -37,7 +38,10 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 
 - `androidGeneratedClasses()`（Activity・Fragment・BuildConfig・R など）
 - `@Composable`（`@Preview` を含む）・`*ComposableSingletons*`・`*.ui.theme`
-- 今後足す予定（計画書 §8）: `KeystoreTokenCipher`・`UrlConnectionTransport`（端末の Keystore とネットワークが要るため実機で確かめる）
+- `@Serializable` のクラス（`annotatedBy("kotlinx.serialization.Serializable")`・I3 で追加）: kotlinx.serialization のプラグインが各モデルに `write$Self` を生成し、Kover はそれを分岐として数える（Todoist の 4 モデルだけで 140 分岐・40%）。モデルは値を持つだけで、JSON の形は `ModelsTest`・`TodoistClientTest` で確かめている
+- 今後足す予定（計画書 §8）: `KeystoreTokenCipher`・`UrlConnectionTransport`（端末の Keystore とネットワークが要るため実機で確かめる。I4）
+
+**I3 の計測（2026-09-20）**: 1 回目は 388 分岐中 17 未達（95.6%）で、計測が効いていることを確かめた。未達の多くは Kotlin の `?.` の連鎖と、比較の両側へ展開される inline のラムダが作る「到達しない分岐」だったので書き直し、実在する境界はテストを足した → **366 分岐・100%**（単体テスト 90 件）。
 
 **陽性対照（2026-09-20・I1）**: テンプレートのままでは測る分岐が 0 件で、**閾値 100 でも `koverVerifyDebug` は通った**。分岐を 1 つ持つ一時クラスを片側だけテストすると、閾値 90 で「branches covered percentage is 50.000000, but expected minimum is 90」と失敗した（一時クラスは削除済み）。⇒ **ロジックのクラスが入るまで C1 90% の検証は空振りする。** 受け入れではテストの実行件数を必ず併記する（S10）。
 
@@ -49,14 +53,15 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 |---|---|---|---|---|---|
 | 2026-09-20 | 1 / 1.0 | Pixel 9 Pro・Android 17 / API 37（Wi-Fi） | I1: debug APK を `adb install -r` → `am start -W` で `MainActivity` が前面（`ResumedActivity`）、「Hello Android!」を表示（[画面](./docs/20260920_共有からTodoist登録/証跡/I1_初回起動_Pixel9Pro.png)）。`dumpsys package` で versionCode=1・minSdk=24・targetSdk=37 | 1 件（`ExampleUnitTest`）／ 測る分岐 0 件 | ✅ |
 | 2026-09-20 | 1 / 1.0 | 同上 | I2: 共有シートに「ショップクリップ」が出て、受信画面（仮）が Amazon アプリ（2 商品）・ヨドバシ アプリ・Chrome からの共有を受け取った。原文を計画書 §2 に記録（[画面](./docs/20260920_共有からTodoist登録/証跡/I2_S1_Amazonアプリ.png)ほか）。`adb shell am start … -f 0x18080000` で S1・S5 を再現し、原文の一致を確認 | 1 件 ／ 測る分岐 0 件（受信画面は Activity なので対象外） | ✅ |
+| 2026-09-20 | 1 / 1.0 | 同上 | I3: 純粋ロジック（`core`・`todoist`・`share`）を追加。計画書 §2 の原文 5 件と短縮 URL の `Location` 5 件で、共有テキスト → 短縮 URL の解決 → タスクの本文までを単体テストで確認（`ShareToTaskTest`）。debug APK を入れ直し、`am start -W` で `MainActivity` が前面（新しいコードはまだ画面から呼ばれない） | 90 件 ／ 366 分岐・100% | ✅ |
 
 ## 残している lint 警告
 
-2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。I2 で `RedundantLabel` を直し、**警告 16**。
+2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。I2 で `RedundantLabel` を直し、**警告 16**。I3 で依存を足し、**警告 18**（kotlinx.serialization の 2 件が増えた）。
 
 | 警告 | 件数 | 残す理由 |
 |---|---|---|
-| `GradleDependency`・`NewerVersionAvailable`・`AndroidGradlePluginVersion`（core-ktx・lifecycle・activity-compose・Compose BOM・androidx.test・Kotlin の compose プラグイン・Kover 0.9.9・Gradle 9.7.1 が出ている） | 9 | 版はテンプレートの生成値を採用し、上げるときは AGP Upgrade Assistant を使う（規約 §6.1）。依存を足す I3 以降で、上げるかどうかをまとめて判断する |
+| `GradleDependency`・`NewerVersionAvailable`・`AndroidGradlePluginVersion`（core-ktx・lifecycle・activity-compose・Compose BOM・androidx.test・Kotlin の compose／serialization プラグイン 2.4.20・kotlinx-serialization-json 1.11.0・Kover 0.9.9・Gradle 9.7.1 が出ている） | 11 | **I3 で「上げない」と決めた**。版はテンプレートの生成値を採用し、手で 1 つずつ上げない（規約 §6.1）。Kotlin のプラグインと serialization は AGP 9.4.1 の built-in Kotlin（KGP 2.2.10）に合わせてある（上げるには KGP を buildscript で上書きする必要がある）。I4 で DataStore・lifecycle-viewmodel-compose を足すと androidx の版が引きずられて上がるので、そのときにもう一度判断する |
 | `UnusedResources`（テンプレートの `colors.xml` の 7 色） | 7 | テンプレートのまま。I6（仕上げ）で整理する |
 | ~~`RedundantLabel`（`MainActivity` の `android:label` がアプリ名と同じ）~~ | 0 | I2 で直した（`MainActivity` の `android:label` を削除） |
 
@@ -64,7 +69,22 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 
 （番号は `INC-SC-NNN`。複数のアプリに効く知見は共通規約へ移す）
 
-- まだ無い。I1 で分かった Kover の挙動（分岐 0 件では閾値 100 でも通る・Gradle 9.6 での非推奨警告）は、複数のアプリに効くので共通規約 §6.2 に書いた
+- まだ無い。I1 で分かった Kover の挙動（分岐 0 件では閾値 100 でも通る・Gradle 9.6 での非推奨警告）と、I3 で分かったこと（Kover が `@Serializable` の生成コードや `?.` の連鎖を分岐として数える・built-in Kotlin の KGP の版の確かめ方・minSdk 24 で使えない API）は、複数のアプリに効くので共通規約 §6.1・§6.2 に書いた
+
+## Chrome 拡張との二重管理（計画書 §6・R5）
+
+件名・説明欄の書式は、拡張（JavaScript）と本アプリ（Kotlin）の両方にある。**片方を変えたら、もう片方も直す。** 拡張側への注記は Android 版を公開するときに足す（計画書 D12）。
+
+| 拡張 | 本アプリ |
+|---|---|
+| `extension/src/lib.js` | `core/Text.kt`・`core/TaskFormat.kt`・`core/ProjectOptions.kt`・`core/Settings.kt`（既定値と移行） |
+| `extension/src/core.js` | `core/Settings.kt`・`core/Draft.kt`（`draftFromPage` → `draftFromShare`。`quickAdd` は無い） |
+| `extension/src/sites/*.js` | `core/sites/*.kt`（`urlPatterns`・`extractSpec` は無い。`shortUrlHosts`・`cleanSharedName` を足した） |
+| `extension/src/todoist.js` | `todoist/TodoistClient.kt`・`todoist/TodoistError.kt`（`fetch` の代わりに `net/HttpTransport`） |
+| `test/*.test.js`・`test/helpers.js` | `app/src/test/…`（移植 64 件。実測値は `Fixtures.kt`） |
+
+- 拡張と挙動を変えた点は計画書 §6 の表とその下の一覧。主なもの: 価格を入れなければ【現在価格】を出さない（D6）、【取込元】が `Androidアプリ（…共有）`、「セール: 」を除く（D13）、`stripQuery` は文字列を切るだけ（WHATWG の正規化はしない）、日付は `Calendar`。
+- テストの期待値（タスク名）は、拡張自身の `shorten`・`buildContent` を node で動かして求めた（2026-09-20）。書式を変えたときは、拡張のテストと本アプリのテストの両方を直す。
 
 ## 変更履歴
 
@@ -72,3 +92,4 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 |---|---|
 | 2026-09-20 | 作成（I1）。Empty Activity から作成、雛形・Kover 0.9.8 を入れ、計画書を `docs/` へ移した。Pixel 9 Pro で起動を確認し、`gradlew` に実行権限を付けた（Windows の Git は `core.filemode=false` のため 100644 で入っていた） |
 | 2026-09-20 | I2: 共有を受け取る仮の画面（`ui/share/ShareActivity`）を足し、共有テキストを実測（計画書 §2）。「セール: 」は取り除く（計画書 D13） |
+| 2026-09-20 | I3: kotlinx.serialization（1.9.0／プラグイン 2.2.10）と kotlinx-coroutines-test（1.11.0）を追加。拡張の lib・core・sites・todoist を Kotlin へ移し（`core`・`todoist`・`net/HttpTransport`）、共有テキストの解析（`share/SharedTextParser`）と短縮 URL の解決（`share/ShortUrlResolver`）を新しく作った。Kover で `@Serializable` を対象外にした。「Chrome 拡張との二重管理」の節を追加 |

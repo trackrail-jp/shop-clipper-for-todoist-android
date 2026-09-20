@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kover)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -50,6 +51,10 @@ kover {
                 classes("*ComposableSingletons*")
                 // Theme definitions (colors, typography, shapes)
                 packages("*.ui.theme")
+                // kotlinx.serialization generates write$Self inside every @Serializable
+                // model (140 branches for the 4 Todoist models, measured 2026-09-20).
+                // The models only hold fields; their JSON is tested in ModelsTest.
+                annotatedBy("kotlinx.serialization.Serializable")
             }
         }
         verify {
@@ -70,7 +75,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

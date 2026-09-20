@@ -1,0 +1,41 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# ---- Androidアプリ開発プロジェクト規約 §4.2 の追記分 ----
+# （Android Studio が生成した .gitignore の末尾に追加する。生成分は消さない）
+
+# Kotlin 2.x のプロジェクトキャッシュ
+.kotlin/
+
+# 署名鍵・署名設定（鍵はルートの 99_secret\ に置き、アプリのリポジトリには入れない）
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# 手元の秘密値。完全一致のファイル名で書く。
+# `secrets.*` のようなワイルドカードは Secrets.kt 等のソースまで巻き込むため使わない（INC-2026-055）。
+secrets.properties
+
+# 署名ウィザード（Generate Signed Bundle / APK）の既定出力先と成果物
+/app/release/
+*.apk
+*.aab
+*.ap_
+
+# OS
+Thumbs.db
+desktop.ini

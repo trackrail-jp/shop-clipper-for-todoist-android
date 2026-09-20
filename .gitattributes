@@ -1,0 +1,26 @@
+# 改行コードとバイナリの指定（Androidアプリ開発プロジェクト規約 §4.1）
+# 各アプリの直下へ .gitattributes としてコピーする。
+# system gitconfig の core.autocrlf=true に左右されないよう、リポジトリ側で決める。
+* text=auto eol=lf
+
+# Windows のスクリプトは CRLF（gradlew.bat を含む）
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# バイナリ（差分・改行変換の対象外）
+*.jar      binary
+*.jks      binary
+*.keystore binary
+*.apk      binary
+*.aab      binary
+*.so       binary
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.webp     binary
+*.ico      binary
+*.ttf      binary
+*.otf      binary
+*.pdf      binary

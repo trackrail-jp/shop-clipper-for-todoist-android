@@ -48,6 +48,7 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 日付 | versionCode / versionName | 端末・OS | 確認した内容 | 単体テスト件数 / C1 | 結果 |
 |---|---|---|---|---|---|
 | 2026-09-20 | 1 / 1.0 | Pixel 9 Pro・Android 17 / API 37（Wi-Fi） | I1: debug APK を `adb install -r` → `am start -W` で `MainActivity` が前面（`ResumedActivity`）、「Hello Android!」を表示（[画面](./docs/20260920_共有からTodoist登録/証跡/I1_初回起動_Pixel9Pro.png)）。`dumpsys package` で versionCode=1・minSdk=24・targetSdk=37 | 1 件（`ExampleUnitTest`）／ 測る分岐 0 件 | ✅ |
+| 2026-09-20 | 1 / 1.0 | 同上 | I2: 共有シートに「ショップクリップ」が出て、受信画面（仮）が Amazon アプリ（2 商品）・ヨドバシ アプリ・Chrome からの共有を受け取った。原文を計画書 §2 に記録（[画面](./docs/20260920_共有からTodoist登録/証跡/I2_S1_Amazonアプリ.png)ほか）。`adb shell am start … -f 0x18080000` で S1・S5 を再現し、原文の一致を確認 | 1 件 ／ 測る分岐 0 件（受信画面は Activity なので対象外） | ✅ |
 
 ## 残している lint 警告
 
@@ -70,3 +71,4 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 日付 | 内容 |
 |---|---|
 | 2026-09-20 | 作成（I1）。Empty Activity から作成、雛形・Kover 0.9.8 を入れ、計画書を `docs/` へ移した。Pixel 9 Pro で起動を確認し、`gradlew` に実行権限を付けた（Windows の Git は `core.filemode=false` のため 100644 で入っていた） |
+| 2026-09-20 | I2: 共有を受け取る仮の画面（`ui/share/ShareActivity`）を足し、共有テキストを実測（計画書 §2）。「セール: 」は取り除く（計画書 D13） |

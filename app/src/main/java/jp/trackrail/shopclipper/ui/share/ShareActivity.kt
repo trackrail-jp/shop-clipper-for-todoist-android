@@ -3,6 +3,8 @@ package jp.trackrail.shopclipper.ui.share
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import java.io.File
+import java.util.Date
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -62,6 +64,10 @@ class ShareActivity : ComponentActivity() {
     private fun show(intent: Intent) {
         dump = describe(intent)
         Log.i(TAG, dump)
+        // The logcat ring buffer on the Pixel holds only about a minute, so keep a copy in
+        // app-private storage too (read with `adb exec-out run-as <pkg> cat files/<file>`).
+        runCatching { File(filesDir, SAMPLES_FILE).appendText("=== ${Date()}\n$dump\n") }
+            .onFailure { Log.w(TAG, "could not save the sample", it) }
     }
 
     private fun describe(intent: Intent): String = buildString {
@@ -111,5 +117,6 @@ class ShareActivity : ComponentActivity() {
 
     private companion object {
         const val TAG = "ShopClipperI2"
+        const val SAMPLES_FILE = "i2_samples.txt"
     }
 }

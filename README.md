@@ -6,9 +6,9 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **計画書（正本・進捗管理）**: [`docs/20260920_共有からTodoist登録/計画書.md`](./docs/20260920_共有からTodoist登録/計画書.md)。次にやることは計画書の §11
 - **共通規約**: `..\Androidアプリ開発プロジェクト規約.md`（正本）。本 README には**このアプリ固有の事項だけ**を書く（コーディング規約 S6・S7／Android 規約 §11）
 - **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
-- **GitHub**: `trackrail-jp/shop-clipper-for-todoist-android`（公開・MIT © 2026 TrackRail）を受け入れ後に作って push する予定（計画書 D4）。まだリモートは無い
+- **GitHub**: [`trackrail-jp/shop-clipper-for-todoist-android`](https://github.com/trackrail-jp/shop-clipper-for-todoist-android)（公開・MIT © 2026 TrackRail・既定ブランチ `main`）。2026-09-21 の I6 で作成して push した（計画書 D4・規約 §4.5）。**リモートがあっても `.git` の Dropbox 同期は続ける**
 - **配布**: 開発中は adb で自分の Pixel に入れる（計画書 D3）。自分のほかの端末へは **Android の「限定配布アカウント」（無料・政府発行 ID 不要・20 台まで）** で配る（計画書 **D14**・2026-09-21 決定）。Google Play には当面出さない
-- **状態**: 開発中（**I5＝共有 → フォーム → 登録まで完了**。2026-09-21 に実機の受け入れが通った。次は I6＝仕上げ・GitHub へ push）
+- **状態**: 開発中（**I6＝仕上げまで完了**。2026-09-21 に実機の受け入れが通り、GitHub へ push した。次は **I7＝限定配布アカウントでの配布**＝計画書 D14・規約 §10.4）
 
 ## 規約からの例外
 

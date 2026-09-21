@@ -9,10 +9,10 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **applicationId／namespace**: `jp.trackrail.shopclipper`（2026-09-20 決定。**規約 §1.3 の接頭辞ではない**＝下の「規約からの例外」。公開後は変更不可）
 - **計画書（正本・進捗管理）**: [`docs/20260920_共有からTodoist登録/計画書.md`](./docs/20260920_共有からTodoist登録/計画書.md)。次にやることは計画書の §11
 - **共通規約**: `..\Androidアプリ開発プロジェクト規約.md`（正本）。本 README には**このアプリ固有の事項だけ**を書く（コーディング規約 S6・S7／Android 規約 §11）
-- **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
+- **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub [`trackrail-jp/shop-clipper-for-todoist`](https://github.com/trackrail-jp/shop-clipper-for-todoist)）。移植のあいだは**読むだけ**。2026-09-22 に D12 の宿題として**相互リンクと二重管理の注記だけ**を書き足した（下の「Chrome 拡張との二重管理」）
 - **GitHub**: [`trackrail-jp/shop-clipper-for-todoist-android`](https://github.com/trackrail-jp/shop-clipper-for-todoist-android)（公開・MIT © 2026 TrackRail・既定ブランチ `main`）。2026-09-21 の I6 で作成して push した（計画書 D4・規約 §4.5）。**リモートがあっても `.git` の Dropbox 同期は続ける**
 - **配布**: adb で自分の端末に入れる（計画書 D3）。**Google Play には出さない。** パッケージ名と署名鍵は、**既存の Google Play Console アカウント（`trackrail_jp`）の「Android デベロッパーの確認」に登録**した（計画書 **D16**・2026-09-21 決定。**限定配布アカウントは作らない**＝D14 を上書き）。詳細は下の「署名と配布」
-- **状態**: **計画書の増分 I1〜I8 はすべて完了**（2026-09-21）。残っているのは ①Play Console のフィンガープリント審査の結果待ち ②Xiaomi Pad 6S Pro への I8 反映（ユーザー判断）③計画書 D12（Chrome 拡張リポジトリとの相互リンク）だけ。詳細は[計画書の §11](./docs/20260920_共有からTodoist登録/計画書.md)
+- **状態**: **完了**（2026-09-22）。計画書の増分 I1〜I8 に加え、残っていた 3 点も片づいた — ①Play Console のフィンガープリントが **確認済み**（パッケージ名は登録済み）②**Xiaomi Pad 6S Pro に I8 を反映**（3 台とも I8）③計画書 D12＝**Chrome 拡張リポジトリとの相互リンク**（拡張側も英語 README に）。詳細は[計画書の §11](./docs/20260920_共有からTodoist登録/計画書.md)
 
 ## 規約からの例外
 
@@ -67,6 +67,7 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-21 | 1 / 1.0 | 同上 | I7: **R8 を有効にした release ビルド**（`optimization { enable = true }`・アプリ署名鍵で署名）。debug をアンインストールして `adb install` → `am start -W` が **Status: ok / COLD / 269ms**、`ResumedActivity` が `MainActivity`（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_release初回起動_設定初期化_Pixel9Pro.png)。データが消えるので設定は初期値に戻る）。ユーザーがトークンを入れ直し、**接続OK（プロジェクト 36 件）**。`am start … SEND` で §2 の S1（TINMORRY TPU・短縮 URL 付き）を送ると、短縮 URL が `dp/B0CLD7LW4T` に解決され、登録先・`Shopping_Amazon`・`100 / 500 文字` が入った（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_release共有フォーム_Pixel9Pro.png)）→ **「追加」で登録成功**（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_release追加しました_Pixel9Pro.png)）。Todoist で件名・説明欄（【商品名】→【ASIN】→【取込元】。**価格未入力なので【現在価格】なし**）・ラベル・P4・🛒 購入候補・単発 / 00 📥 未整理 を確認し、`find-activity` の client が `Dalvik/…Pixel 9 Pro` であることも確認（S10）。**テスト登録の 1 件は承認のうえ削除**（D10）。logcat 2,374 行に例外 0 件・`Bearer` 0 件 | コード変更なし（124 件 ／ 99.37% のまま） | ✅ |
 | 2026-09-21 | 1 / 1.0 | 同上 | I8: 設定画面の案内と保存後の動線（計画書 D17）。**同じ鍵の release を `adb install -r` で上書き**したので、保存済みのトークンと登録先はそのまま残った。①冒頭の「はじめに」カード（3 ステップ・**保存を押すまで反映されない**）が出て、節ごとに区切り線・太字の説明・28dp の余白が付いた（[改善前](./docs/20260920_共有からTodoist登録/証跡/I8_設定画面_改善前_Pixel9Pro.png) → [改善後 上部](./docs/20260920_共有からTodoist登録/証跡/I8_設定画面_改善後_上部_Pixel9Pro.png) ／ [改善後 下部](./docs/20260920_共有からTodoist登録/証跡/I8_設定画面_改善後_下部_Pixel9Pro.png)）。②「保存」を押すと**ダイアログ「保存しました」**が出て既定の登録先を表示（[画面](./docs/20260920_共有からTodoist登録/証跡/I8_保存ダイアログ_Pixel9Pro.png)）、「閉じる」で消え、画面下の通知は残る。③ダイアログの **「Amazon.co.jp を開く」で Amazon アプリが前面**（`dumpsys activity activities` の `topResumedActivity` が `com.amazon.mShop.android.shopping/…MainActivity`）。**ヨドバシはアプリが入っていても Chrome が開いた**（App Links の対象 URL はアプリ側が決める＝設計どおりのフォールバック）。logcat（753 行・陽性対照として `shopclipper` を含む行 14 件）に**アプリの pid 由来の例外 0 件・`Bearer` 0 件・40 桁 16 進 0 件**。**タスクは 1 件も作っていない** | 125 件 ／ 476 分岐・99.37%（`@Composable` は Kover の対象外なので UI を足しても動かない） | ✅ |
 | 2026-09-21 | 1 / 1.0 | **Pixel 10 Pro**・Android 17 / API 37（Wi-Fi） | I7 の⑤: **2 台目以降からの「共有 → 登録」**。I8 入りの release を `adb install -r` で上書き（同じ鍵なので**トークンと登録先はそのまま**。開くと自動の接続テストが「接続OK（プロジェクト 36 件）」＝[画面](./docs/20260920_共有からTodoist登録/証跡/I8_設定画面_改善後_Pixel10Pro.png)）。計画書 §2 の S1（Amazon アプリの原文・短縮 URL 付き）を端末へ push したシェル スクリプトから `am start … SEND` で送り、フォームに **ASIN `B0CLD7LW4T`**（短縮 URL を解決）・`100 / 500 文字`・🛒 購入候補・単発 / 00 📥 未整理・P4・`Shopping_Amazon` が入ることを確認（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_共有フォーム_Pixel10Pro.png)）→「追加」→ **「追加しました」**（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_追加しました_Pixel10Pro.png)）。**`find-tasks` と `find-activity` の 2 通りで裏取り**し、`added` イベントの client が `Dalvik/2.1.0 (Linux; U; Android 17; Pixel 10 Pro Build/CP2A.260805.005)`＝アプリ自身であることを確認（S10）。**テスト登録 1 件は承認のうえ削除**（D10） | コード変更なし（125 件 ／ 99.37% のまま） | ✅ |
+| 2026-09-22 | 1 / 1.0 | **Xiaomi Pad 6S Pro**（`24018RPACG`）・Android 16 / API 36・HyperOS OS3.0 | 3 台目にも I8 を反映。**HyperOS は `adb install` を `INSTALL_FAILED_USER_RESTRICTED` で弾く**ので、`adb push` で `/sdcard/Download/ShopClipper-release.apk`（I7 版）に**上書き**して置き、**ユーザーが端末のファイル アプリから手でインストール**した。裏取り（S10）: 端末に入った `base.apk`（`pm path` で特定）の **MD5 が PC の release と一致**（`580158a3…ddb3`・1,590,974 バイト）、**`firstInstallTime` は 2026-09-21 19:17:12 のまま**で `lastUpdateTime` だけ 2026-09-22 07:41:58 ＝ **上書き更新なのでトークンと設定は消えていない**。`am start -W` が **Status: ok / COLD / 303ms**、アプリの pid（2727）由来の例外 0 件。**Todoist にタスクは 1 件も作っていない** | コード変更なし（125 件 ／ 99.37% のまま） | ✅ |
 
 ## lint 警告（2026-09-21・I6 で 0 件にした）
 
@@ -103,7 +104,8 @@ buildscript {
 | 証明書 SHA-256 | `E8:62:6D:B8:63:6E:71:87:FC:0C:54:B4:0E:32:AF:75:EC:F8:AA:57:A3:E5:E1:80:07:FC:DB:24:BD:D2:86:93`（有効期限 2054-02-06） |
 | パスワード | `%USERPROFILE%\.gradle\gradle.properties` の `SHOPCLIPPER_UPLOAD_*`（Dropbox の外＝規約 §9）。**PKCS12 はストアと鍵が同じパスワード** |
 | release APK | `app/build/outputs/apk/release/app-release.apk` ＝ **1,554,826 バイト**（debug 12.26 MB → **1.48 MB**）。`apksigner verify` が **v2 scheme** で検証 OK、DN は `CN=TrackRail, O=TrackRail, C=JP` |
-| 登録先 | Google Play Console（`trackrail_jp`・個人用）の「**Android デベロッパーの確認**」→ パッケージ名 `jp.trackrail.shopclipper`（表示名 `ShopClipper`）。SHA-256 を登録 → **ステータス「審査中」**、パッケージ自体は「未公開」 |
+| 登録先 | Google Play Console（`trackrail_jp`・個人用）の「**Android デベロッパーの確認**」→ パッケージ名 `jp.trackrail.shopclipper`（表示名 `ShopClipper`）。2026-09-21 に SHA-256 を登録 → 直後は「審査中」→ **2026-09-22 にパッケージ名「登録済み」・鍵のフィンガープリント「確認済み」**（鍵 1 個・最終更新日 2026年9月21日）。Play には出さないのでパッケージ自体は「未公開」のまま |
+| ⚠️ 証跡 | **Play Console の画面はアカウント ID とメールアドレスが写るので、公開リポジトリの `証跡/` には置かない。** 状態は本表に文字で残す |
 
 **I7 で分かったこと**
 
@@ -135,7 +137,9 @@ buildscript {
 
 ## Chrome 拡張との二重管理（計画書 §6・R5）
 
-件名・説明欄の書式は、拡張（JavaScript）と本アプリ（Kotlin）の両方にある。**片方を変えたら、もう片方も直す。** 拡張側への注記は Android 版を公開するときに足す（計画書 D12）。
+件名・説明欄の書式は、拡張（JavaScript）と本アプリ（Kotlin）の両方にある。**片方を変えたら、もう片方も直す。**
+
+✅ **拡張側への注記は 2026-09-22 に入れた**（計画書 D12 を完了）。拡張リポジトリ [`trackrail-jp/shop-clipper-for-todoist`](https://github.com/trackrail-jp/shop-clipper-for-todoist) の README 冒頭に Android 版へのリンク、末尾に「Android 版との関係」の節（同じ書式・**片方を変えたら両方**・この表へのリンク）を置いた。ついでに**拡張側も英語 `README.md` ＋日本語 `README.ja.md` の 2 本立て**にした（ユーザー判断。規約 §4.5 の「既存には遡及しない」を、手が入るこの機会に適用した）。
 
 | 拡張 | 本アプリ |
 |---|---|
@@ -164,3 +168,4 @@ buildscript {
 | 2026-09-21 | I7（①〜④）: **署名と登録**（計画書 D16）。①ユーザーが `keytool` でアプリ署名鍵を作成（PKCS12・RSA 4096・10000 日）、`signingConfigs` を `app/build.gradle.kts` に追加。②**AGP 9 の `optimization { enable = true }`** で R8 を有効化し、release APK を 1.48 MB（debug 12.26 MB）で生成。③debug をアンインストールして release を実機へ入れ、起動・共有・登録まで実データで確認（受け入れ記録の I7 行）。④**登録先を限定配布アカウントから既存の Play Console アカウントへ変更**（D16。20 台の上限と端末ごとの承認が不要になる）し、`jp.trackrail.shopclipper` ＋ SHA-256 を登録 → 審査中。知見は規約 §9・§10.4・§12 V2 と本ファイルの「署名と配布」に反映。**残り: I7 の⑤＝2 台目の端末での確認** |
 | 2026-09-21 | I8: **設定画面の案内と保存後の動線**（計画書 D17）。①冒頭に**カードで囲んだ「はじめに」**（設定は 1 回だけ・①トークン②登録先③一番下で保存・**保存を押すまで反映されない**）。②節を「1. API トークン／2. 既定の登録先／3. 登録内容（任意）／4. 保存」に整理し、**説明は太字で要点を立てて**操作の直前へ置いた（「一覧は接続テストのあとに出る」を含む）。③節の間の余白を **12dp → 28dp**（`SectionGap`）に広げ、節の頭に区切り線を入れた。④**保存に成功したらダイアログ**で知らせる（`SettingsUiState.justSaved` の一過性フラグ＋`dismissSaved()`）。⑤ダイアログから **Amazon.co.jp ／ ヨドバシ.com を開く**（`SettingsActions.onOpenUrl` に URL を渡すだけで、`startActivity` は `MainActivity` 側。パッケージ名は直書きしない）。単体テスト 125 件・C1 99.37%・lint エラー 0/警告 0。共通に効く知見は規約 §6.5〈新設〉・§9 に反映 |
 | 2026-09-21 | I7 の⑤（最後の受け入れ）: **Pixel 10 Pro から「共有 → 登録」を 1 件**通し、`find-tasks` と `find-activity` の 2 通りで裏取りした（client が `Dalvik/…Pixel 10 Pro`）。⚠️ **Todoist の活動ログは数分遅れて載る**ので、登録直後の「0 件」で判断してはいけない（待って引き直す＝S10）。テスト登録は承認のうえ削除。**これで計画書の I1〜I8 がすべて完了**（残るは Play Console の審査結果・Xiaomi への I8 反映・D12 の相互リンク） |
+| 2026-09-22 | **残りの 3 点を片づけて本件を完了**。①**Play Console のフィンガープリントが「確認済み」**・パッケージ名は「登録済み」になった（上の「署名と配布」）。②**Xiaomi Pad 6S Pro に I8 を反映**（`adb push` → 端末のファイル アプリから手動インストール。`base.apk` の MD5 一致と `firstInstallTime` 据え置きで上書き更新を確認）＝受け入れ記録に 1 行。③**計画書 D12 を完了**: 拡張リポジトリに相互リンクと「Android 版との関係」の節を入れ、拡張側も英語 `README.md` ＋ `README.ja.md` の 2 本立てにした（拡張は `npm test` 120 件・失敗 0・100% で push 済み）。**コードは 1 行も変えていない**（テスト 125 件・C1 99.37% のまま） |

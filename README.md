@@ -8,7 +8,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
 - **GitHub**: `trackrail-jp/shop-clipper-for-todoist-android`（公開・MIT © 2026 TrackRail）を受け入れ後に作って push する予定（計画書 D4）。まだリモートは無い
 - **配布**: adb で自分の Pixel に入れる（計画書 D3）。Google Play は別途判断
-- **状態**: 開発中（I5＝共有 → フォーム → 登録の**実装とテストまで完了**。実機の受け入れ待ち。次は I6＝仕上げ・GitHub へ push）
+- **状態**: 開発中（**I5＝共有 → フォーム → 登録まで完了**。2026-09-21 に実機の受け入れが通った。次は I6＝仕上げ・GitHub へ push）
 
 ## 規約からの例外
 
@@ -56,6 +56,7 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-20 | 1 / 1.0 | 同上 | I2: 共有シートに「ショップクリップ」が出て、受信画面（仮）が Amazon アプリ（2 商品）・ヨドバシ アプリ・Chrome からの共有を受け取った。原文を計画書 §2 に記録（[画面](./docs/20260920_共有からTodoist登録/証跡/I2_S1_Amazonアプリ.png)ほか）。`adb shell am start … -f 0x18080000` で S1・S5 を再現し、原文の一致を確認 | 1 件 ／ 測る分岐 0 件（受信画面は Activity なので対象外） | ✅ |
 | 2026-09-20 | 1 / 1.0 | 同上 | I3: 純粋ロジック（`core`・`todoist`・`share`）を追加。計画書 §2 の原文 5 件と短縮 URL の `Location` 5 件で、共有テキスト → 短縮 URL の解決 → タスクの本文までを単体テストで確認（`ShareToTaskTest`）。debug APK を入れ直し、`am start -W` で `MainActivity` が前面（新しいコードはまだ画面から呼ばれない） | 90 件 ／ 366 分岐・100% | ✅ |
 | 2026-09-21 | 1 / 1.0 | 同上 | I4: 設定画面。**ユーザーが端末でトークンを入力**（Claude は見ていない）→「接続OK（プロジェクト 36 件）」（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_接続テスト_Pixel9Pro.png)）→ 既定の登録先「🛒 購入候補・単発 / 00 📥 未整理」・サイト別ラベル ON で保存（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_保存_Pixel9Pro.png)）→ `am force-stop` 後に開き直しても残り、自動の接続テストが通る（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_開き直して復元_Pixel9Pro.png)）。`adb logcat` 918 行に `Bearer` 0 件・40 桁 16 進 0 件。`files/datastore/settings.preferences_pb` は 331 バイトで、トークンは 92 文字の Base64（IV＋暗号文＋タグ）だけ | 109 件 ／ 442 分岐・100% | ✅ |
+| 2026-09-21 | 1 / 1.0 | 同上 | I5: 共有 → フォーム → 登録の受け入れ（計画書 §9 の I5）。①Amazon アプリから共有 → 追加 → Todoist で件名（リンク形式・100 字）・説明欄（【メモ】【商品名】【ASIN】【取込元】が空行 1 つ区切り）・ラベル `Shopping_Amazon`・登録先を確認（**価格を入れなかったので【現在価格】は出ない＝D6 どおり**）。②優先度 **P1** で送ったタスクが Todoist で P1 → **API の `priority=4` が P1**（計画書 R3 を解決）。③同じ ASIN の既存タスクで**重複の警告**。④解決できない短縮 URL で **D8 の警告**（[画面](./docs/20260920_共有からTodoist登録/証跡/I5_D8警告_短縮URL解決失敗_Pixel9Pro.png)）。機内モードの共有ではオフライン時の警告 2 件（[画面](./docs/20260920_共有からTodoist登録/証跡/I5_機内モード_オフライン警告_Pixel9Pro.png)）。⑤Chrome で対応外のページ → 「ページ名＋URL」＋【ページ名】＋【取込元】`Androidアプリ（共有）`・ラベルなし。`find-tasks` と `find-activity` の両方で、登録したタスクの client が `Dalvik/…Pixel 9 Pro`＝アプリ自身であることを確認（S10）。テスト用の 3 件は承認のうえ削除（D10） | 123 件 ／ 476 分岐・99.37% | ✅ |
 
 ## 残している lint 警告
 
@@ -71,7 +72,9 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 
 （番号は `INC-SC-NNN`。複数のアプリに効く知見は共通規約へ移す）
 
-- まだ無い。I1 で分かった Kover の挙動（分岐 0 件では閾値 100 でも通る・Gradle 9.6 での非推奨警告）と、I3 で分かったこと（Kover が `@Serializable` の生成コードや `?.` の連鎖を分岐として数える・built-in Kotlin の KGP の版の確かめ方・minSdk 24 で使えない API）は、複数のアプリに効くので共通規約 §6.1・§6.2 に書いた
+- **Todoist API の優先度は `4` が P1**（2026-09-21・I5 の受け入れで実測）。公式ドキュメントは Create/Update Task で「1-4, where 1 is highest」と書いているが、タスクのオブジェクト説明の「4 for very urgent … p1 will return 4」が正しい。**Chrome 拡張と本アプリの実装（4＝P1）のままでよい**（計画書 R3 を解決）。
+- **オフライン（機内モード）では、Amazon アプリは短縮 URL（`amzn.asia`）を作らずフル URL を共有する**（2026-09-21・I5）。短縮 URL は Amazon のサーバーが作るため。**機内モードでは D8（短縮 URL を解決できない）の経路に入らない**ので、D8 の実機確認には解決できない短縮 URL（`https://amzn.asia/d/00000000`）を `adb` で送る。オフラインでは代わりに「重複を確かめられませんでした」「登録先の一覧を読めませんでした（…保存済みの登録先に追加します）」の 2 件が出る（どちらも警告だけで登録は続けられる＝計画書 D5）。
+- I1 で分かった Kover の挙動（分岐 0 件では閾値 100 でも通る・Gradle 9.6 での非推奨警告）と、I3 で分かったこと（Kover が `@Serializable` の生成コードや `?.` の連鎖を分岐として数える・built-in Kotlin の KGP の版の確かめ方・minSdk 24 で使えない API）は、複数のアプリに効くので共通規約 §6.1・§6.2 に書いた
 
 ## データの扱い（計画書 R7・D6）
 
@@ -104,3 +107,4 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-20 | I3: kotlinx.serialization（1.9.0／プラグイン 2.2.10）と kotlinx-coroutines-test（1.11.0）を追加。拡張の lib・core・sites・todoist を Kotlin へ移し（`core`・`todoist`・`net/HttpTransport`）、共有テキストの解析（`share/SharedTextParser`）と短縮 URL の解決（`share/ShortUrlResolver`）を新しく作った。Kover で `@Serializable` を対象外にした。「Chrome 拡張との二重管理」の節を追加 |
 | 2026-09-21 | I4: DataStore（1.2.1）と lifecycle-viewmodel-compose を追加。`net/UrlConnectionTransport`・`data/KeystoreTokenCipher`（AES-256-GCM）・`data/SettingsRepository`・設定画面（`ui/settings`＋`MainActivity`）を作り、`INTERNET` 権限とバックアップ除外を足した。アプリ名を「ショップクリップ for Todoist」に（計画書 D1）。「データの扱い」の節を追加 |
 | 2026-09-21 | I5: 共有シートの本体（`ui/share/ShareViewModel`・`ShareSheet`・本物の `ShareActivity`）を作り、設定画面と共用の選択肢を `ui/common/Pickers` に出した。`ShareActivity` を透過テーマ＋`excludeFromRecents` にして、送り元のアプリの上にボトムシートが出るようにした。I2 のデバッグ用の保存（`files/i2_samples.txt`）を消し、端末に残っていたファイルも消した。依存の追加は無し |
+| 2026-09-21 | I5 の**受け入れ**（実機 5 項目）。計画書 R3 を解決（Todoist の優先度は `4`＝P1）。機内モードでの Amazon アプリの挙動と D8 の確かめ方を「アプリ固有の知見」に追加し、受け入れ記録に 1 行足した。一覧が読めないときの登録先の表示のずれは I6 の宿題（計画書 §11） |

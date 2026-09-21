@@ -107,15 +107,16 @@ class ShareViewModelTest {
         assertEquals(ShareStage.Added, added.stage)
         assertEquals("https://app.todoist.com/app/task/T99", added.addedTaskUrl)
         val post = transport.calls.last { it.method == "POST" }
+        val body = post.body!!
         assertEquals("https://api.todoist.com/api/v1/tasks", post.url)
-        assertTrue(post.body!!.contains(""""content":"[TINMORRY TPU 95Aフィラメント"""))
-        assertTrue(post.body!!.contains(""""project_id":"cand""""))
-        assertTrue(post.body!!.contains(""""section_id":"sec1""""))
-        assertTrue(post.body!!.contains(""""labels":["Shopping_Amazon"]"""))
-        assertTrue(post.body!!.contains("""【ASIN】**\nB0CLD7LW4T"""))
-        assertTrue(post.body!!.contains("""【取込元】**\nAndroidアプリ（Amazon共有）"""))
+        assertTrue(body.contains(""""content":"[TINMORRY TPU 95Aフィラメント"""))
+        assertTrue(body.contains(""""project_id":"cand""""))
+        assertTrue(body.contains(""""section_id":"sec1""""))
+        assertTrue(body.contains(""""labels":["Shopping_Amazon"]"""))
+        assertTrue(body.contains("""【ASIN】**\nB0CLD7LW4T"""))
+        assertTrue(body.contains("""【取込元】**\nAndroidアプリ（Amazon共有）"""))
         // D6: no price typed -> no 【現在価格】 block.
-        assertFalse(post.body!!.contains("現在価格"))
+        assertFalse(body.contains("現在価格"))
     }
 
     @Test
@@ -145,7 +146,8 @@ class ShareViewModelTest {
         // Without a code it is a page, so the description uses 【ページ名】.
         model.add()
         val post = transport.calls.last { it.method == "POST" }
-        assertTrue(post.body!!.contains("""【ページ名】"""))
+        val body = post.body!!
+        assertTrue(body.contains("""【ページ名】"""))
         assertEquals(ShareStage.Added, model.state.value.stage)
     }
 
@@ -170,7 +172,8 @@ class ShareViewModelTest {
         val state = model.state.value
         assertEquals(ShareStage.Form, state.stage)
         assertFalse(state.busy)
-        assertTrue(state.error!!, state.error!!.startsWith("Todoist 側でエラーが発生しました"))
+        val message = state.error!!
+        assertTrue(message, message.startsWith("Todoist 側でエラーが発生しました"))
         assertNull(state.addedTaskUrl)
     }
 
@@ -186,7 +189,8 @@ class ShareViewModelTest {
         // The saved destination is still used.
         model.add()
         val post = transport.calls.last { it.method == "POST" }
-        assertTrue(post.body!!.contains(""""project_id":"cand""""))
+        val body = post.body!!
+        assertTrue(body.contains(""""project_id":"cand""""))
     }
 
     // I6: the pickers used to fall back to 「（インボックス・既定）」「（セクションなし）」, which
@@ -216,14 +220,15 @@ class ShareViewModelTest {
         model.onProjectSelected("")
         model.add()
         val post = transport.calls.last { it.method == "POST" }
-        assertTrue(post.body!!.contains(""""content":"[TPU フィラメント 1kg](https://www.amazon.co.jp/dp/B0CLD7LW4T)""""))
-        assertTrue(post.body!!.contains(""""priority":4"""))
-        assertTrue(post.body!!.contains(""""labels":["Shopping_Amazon","価格待ち"]"""))
-        assertTrue(post.body!!.contains("""【メモ】**\n3Dプリンター用の補充\n2,000円以下なら買う"""))
-        assertTrue(post.body!!.contains("""【現在価格】**\n￥2,480（"""))
+        val body = post.body!!
+        assertTrue(body.contains(""""content":"[TPU フィラメント 1kg](https://www.amazon.co.jp/dp/B0CLD7LW4T)""""))
+        assertTrue(body.contains(""""priority":4"""))
+        assertTrue(body.contains(""""labels":["Shopping_Amazon","価格待ち"]"""))
+        assertTrue(body.contains("""【メモ】**\n3Dプリンター用の補充\n2,000円以下なら買う"""))
+        assertTrue(body.contains("""【現在価格】**\n￥2,480（"""))
         // The Inbox was chosen, so no project_id / section_id is sent.
-        assertFalse(post.body!!.contains("project_id"))
-        assertFalse(post.body!!.contains("section_id"))
+        assertFalse(body.contains("project_id"))
+        assertFalse(body.contains("section_id"))
     }
 
     @Test
@@ -242,9 +247,10 @@ class ShareViewModelTest {
         assertEquals(emptyList<String>(), form.warnings)
         model.add()
         val post = transport.calls.last { it.method == "POST" }
-        assertTrue(post.body!!.contains("""【ページ名】**\nExample ページ"""))
-        assertTrue(post.body!!.contains("""【取込元】**\nAndroidアプリ（共有）"""))
-        assertFalse(post.body!!.contains("project_id"))
+        val body = post.body!!
+        assertTrue(body.contains("""【ページ名】**\nExample ページ"""))
+        assertTrue(body.contains("""【取込元】**\nAndroidアプリ（共有）"""))
+        assertFalse(body.contains("project_id"))
     }
 
     @Test

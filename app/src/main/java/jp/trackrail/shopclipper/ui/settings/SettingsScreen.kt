@@ -10,11 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -31,8 +28,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import jp.trackrail.shopclipper.core.ProjectOption
-import jp.trackrail.shopclipper.todoist.TodoistSection
+import jp.trackrail.shopclipper.ui.common.Chooser
+import jp.trackrail.shopclipper.ui.common.InboxOption
+import jp.trackrail.shopclipper.ui.common.NoSectionOption
+import jp.trackrail.shopclipper.ui.common.Priorities
 
 // The settings screen (計画書 §4). The layout follows the extension's options
 // page: 1. API トークン → 2. 既定の登録先 → 3. 登録内容 → 保存.
@@ -50,10 +49,6 @@ data class SettingsActions(
     val onSave: () -> Unit = {},
 )
 
-/** The Inbox is "no project_id in the request", so its id is empty (計画書 D10). */
-private val INBOX = ProjectOption(id = "", name = "インボックス", depth = 0, label = "（インボックス・既定）")
-private val NO_SECTION = TodoistSection(id = "", name = "（セクションなし）")
-private val PRIORITIES = listOf(4 to "P1", 3 to "P2", 2 to "P3", 1 to "P4")
 
 @Composable
 fun SettingsScreen(state: SettingsUiState, actions: SettingsActions, modifier: Modifier = Modifier) {
@@ -86,20 +81,20 @@ fun SettingsScreen(state: SettingsUiState, actions: SettingsActions, modifier: M
                 "共有したときのフォームの初期値です。接続テストを押すとプロジェクトの一覧が出ます。",
                 style = MaterialTheme.typography.bodySmall,
             )
-            val projects = listOf(INBOX) + state.projects
+            val projects = listOf(InboxOption) + state.projects
             Chooser(
                 label = "プロジェクト",
                 options = projects,
-                selected = projects.firstOrNull { it.id == state.projectId } ?: INBOX,
+                selected = projects.firstOrNull { it.id == state.projectId } ?: InboxOption,
                 text = { it.label },
                 onSelect = { actions.onProject(it.id) },
                 enabled = !state.busy,
             )
-            val sections = listOf(NO_SECTION) + state.sections
+            val sections = listOf(NoSectionOption) + state.sections
             Chooser(
                 label = "セクション",
                 options = sections,
-                selected = sections.firstOrNull { it.id == state.sectionId } ?: NO_SECTION,
+                selected = sections.firstOrNull { it.id == state.sectionId } ?: NoSectionOption,
                 text = { it.name },
                 onSelect = { actions.onSection(it.id) },
                 enabled = !state.busy && state.sections.isNotEmpty(),
@@ -123,8 +118,8 @@ fun SettingsScreen(state: SettingsUiState, actions: SettingsActions, modifier: M
             )
             Chooser(
                 label = "優先度",
-                options = PRIORITIES,
-                selected = PRIORITIES.firstOrNull { it.first == state.priority } ?: PRIORITIES.last(),
+                options = Priorities,
+                selected = Priorities.firstOrNull { it.first == state.priority } ?: Priorities.last(),
                 text = { it.second },
                 onSelect = { actions.onPriority(it.first) },
             )
@@ -161,35 +156,6 @@ private fun TokenField(token: String, onToken: (String) -> Unit) {
         trailingIcon = { TextButton(onClick = { visible = !visible }) { Text(if (visible) "隠す" else "表示") } },
         modifier = Modifier.fillMaxWidth(),
     )
-}
-
-@Composable
-private fun <T> Chooser(
-    label: String,
-    options: List<T>,
-    selected: T?,
-    text: (T) -> String,
-    onSelect: (T) -> Unit,
-    enabled: Boolean = true,
-) {
-    var expanded by remember { mutableStateOf(false) }
-    Column {
-        Text(label, style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(onClick = { expanded = true }, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
-            Text(selected?.let(text) ?: "—", modifier = Modifier.weight(1f))
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(text(option)) },
-                    onClick = {
-                        expanded = false
-                        onSelect(option)
-                    },
-                )
-            }
-        }
-    }
 }
 
 @Composable

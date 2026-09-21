@@ -46,6 +46,8 @@ data class ShareUiState(
     val memo: String = "",
     val projects: List<ProjectOption> = emptyList(),
     val sections: List<TodoistSection> = emptyList(),
+    /** true once the pickers' contents were read. Until then the form shows the saved 登録先 (I6). */
+    val destinationsLoaded: Boolean = false,
     val projectId: String = "",
     val sectionId: String = "",
     val labels: String = "",
@@ -212,7 +214,13 @@ class ShareViewModel(
             val projectId = if (projects.any { it.id == _state.value.projectId }) _state.value.projectId else ""
             val sections = if (projectId.isEmpty()) emptyList() else sortSections(client().listSections(projectId))
             val sectionId = if (sections.any { it.id == _state.value.sectionId }) _state.value.sectionId else ""
-            _state.value = _state.value.copy(projects = projects, sections = sections, projectId = projectId, sectionId = sectionId)
+            _state.value = _state.value.copy(
+                projects = projects,
+                sections = sections,
+                projectId = projectId,
+                sectionId = sectionId,
+                destinationsLoaded = true,
+            )
         } catch (e: TodoistError) {
             _state.value = _state.value.copy(warnings = _state.value.warnings + "登録先の一覧を読めませんでした（${e.text}）。保存済みの登録先に追加します。")
         }

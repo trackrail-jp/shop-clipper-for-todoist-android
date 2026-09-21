@@ -100,6 +100,7 @@ class ShareViewModelTest {
         assertEquals("Shopping_Amazon", form.labels)
         assertEquals(emptyList<String>(), form.warnings)
         assertEquals(100, form.contentLength)
+        assertTrue(form.destinationsLoaded) // the pickers have their contents
 
         model.add()
         val added = model.state.value
@@ -186,6 +187,20 @@ class ShareViewModelTest {
         model.add()
         val post = transport.calls.last { it.method == "POST" }
         assertTrue(post.body!!.contains(""""project_id":"cand""""))
+    }
+
+    // I6: the pickers used to fall back to 「（インボックス・既定）」「（セクションなし）」, which
+    // disagreed with the warning and with where the task actually goes.
+    @Test
+    fun aDestinationListThatCannotBeReadShowsTheSavedTargetInstead() = runTest {
+        val transport = transport(projects = json("Unauthorized", 401))
+        val model = model(transport)
+        model.load(SharedSamples.S1_TEXT, SharedSamples.S1_SUBJECT)
+        val state = model.state.value
+        assertFalse(state.destinationsLoaded)
+        assertEquals("🛒 ほしいもの / いますぐ", state.targetLabel)
+        assertEquals("cand", state.projectId)
+        assertEquals("sec1", state.sectionId)
     }
 
     @Test

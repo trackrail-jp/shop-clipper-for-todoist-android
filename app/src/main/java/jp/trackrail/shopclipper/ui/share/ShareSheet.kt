@@ -116,24 +116,31 @@ private fun Form(state: ShareUiState, actions: ShareActions) {
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    val projects = listOf(InboxOption) + state.projects
-    Chooser(
-        label = "プロジェクト",
-        options = projects,
-        selected = projects.firstOrNull { it.id == state.projectId } ?: InboxOption,
-        text = { it.label },
-        onSelect = { actions.onProject(it.id) },
-        enabled = !state.busy,
-    )
-    val sections = listOf(NoSectionOption) + state.sections
-    Chooser(
-        label = "セクション",
-        options = sections,
-        selected = sections.firstOrNull { it.id == state.sectionId } ?: NoSectionOption,
-        text = { it.name },
-        onSelect = { actions.onSection(it.id) },
-        enabled = !state.busy && state.sections.isNotEmpty(),
-    )
+    if (state.destinationsLoaded) {
+        val projects = listOf(InboxOption) + state.projects
+        Chooser(
+            label = "プロジェクト",
+            options = projects,
+            selected = projects.firstOrNull { it.id == state.projectId } ?: InboxOption,
+            text = { it.label },
+            onSelect = { actions.onProject(it.id) },
+            enabled = !state.busy,
+        )
+        val sections = listOf(NoSectionOption) + state.sections
+        Chooser(
+            label = "セクション",
+            options = sections,
+            selected = sections.firstOrNull { it.id == state.sectionId } ?: NoSectionOption,
+            text = { it.name },
+            onSelect = { actions.onSection(it.id) },
+            enabled = !state.busy && state.sections.isNotEmpty(),
+        )
+    } else {
+        // The list has not arrived (or could not be read): the task goes to the
+        // saved destination, so show its name rather than the Inbox (I6).
+        Text("登録先", style = MaterialTheme.typography.labelLarge)
+        Text(state.targetLabel, style = MaterialTheme.typography.bodyMedium)
+    }
     Chooser(
         label = "優先度",
         options = Priorities,

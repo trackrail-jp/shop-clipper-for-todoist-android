@@ -8,7 +8,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
 - **GitHub**: `trackrail-jp/shop-clipper-for-todoist-android`（公開・MIT © 2026 TrackRail）を受け入れ後に作って push する予定（計画書 D4）。まだリモートは無い
 - **配布**: adb で自分の Pixel に入れる（計画書 D3）。Google Play は別途判断
-- **状態**: 開発中（I4＝設定画面とトークンの保存まで完了。次は I5＝共有 → フォーム → 登録）
+- **状態**: 開発中（I5＝共有 → フォーム → 登録の**実装とテストまで完了**。実機の受け入れ待ち。次は I6＝仕上げ・GitHub へ push）
 
 ## 規約からの例外
 
@@ -59,7 +59,7 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 
 ## 残している lint 警告
 
-2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。I2 で `RedundantLabel` を直し、**警告 16**。I3 で依存を足し、**警告 18**（kotlinx.serialization の 2 件が増えた）。I4 で lifecycle-viewmodel-compose を足し、**警告 19**（エラーは 0 のまま）。
+2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。I2 で `RedundantLabel` を直し、**警告 16**。I3 で依存を足し、**警告 18**（kotlinx.serialization の 2 件が増えた）。I4 で lifecycle-viewmodel-compose を足し、**警告 19**（エラーは 0 のまま）。I5 は依存を足していないので **警告 19 のまま**（I5 で新しく出た 2 件＝`Chooser` の `ModifierParameter`〈`modifier` を他の任意引数より前に〉と `ShareActivity` の `UseKtx`〈`Uri.parse` → `androidx.core.net.toUri`〉は、その場で直した）。
 
 | 警告 | 件数 | 残す理由 |
 |---|---|---|
@@ -103,3 +103,4 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-20 | I2: 共有を受け取る仮の画面（`ui/share/ShareActivity`）を足し、共有テキストを実測（計画書 §2）。「セール: 」は取り除く（計画書 D13） |
 | 2026-09-20 | I3: kotlinx.serialization（1.9.0／プラグイン 2.2.10）と kotlinx-coroutines-test（1.11.0）を追加。拡張の lib・core・sites・todoist を Kotlin へ移し（`core`・`todoist`・`net/HttpTransport`）、共有テキストの解析（`share/SharedTextParser`）と短縮 URL の解決（`share/ShortUrlResolver`）を新しく作った。Kover で `@Serializable` を対象外にした。「Chrome 拡張との二重管理」の節を追加 |
 | 2026-09-21 | I4: DataStore（1.2.1）と lifecycle-viewmodel-compose を追加。`net/UrlConnectionTransport`・`data/KeystoreTokenCipher`（AES-256-GCM）・`data/SettingsRepository`・設定画面（`ui/settings`＋`MainActivity`）を作り、`INTERNET` 権限とバックアップ除外を足した。アプリ名を「ショップクリップ for Todoist」に（計画書 D1）。「データの扱い」の節を追加 |
+| 2026-09-21 | I5: 共有シートの本体（`ui/share/ShareViewModel`・`ShareSheet`・本物の `ShareActivity`）を作り、設定画面と共用の選択肢を `ui/common/Pickers` に出した。`ShareActivity` を透過テーマ＋`excludeFromRecents` にして、送り元のアプリの上にボトムシートが出るようにした。I2 のデバッグ用の保存（`files/i2_samples.txt`）を消し、端末に残っていたファイルも消した。依存の追加は無し |

@@ -23,11 +23,32 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // 🔴 The key itself is NOT in this repository (規約 §9): it lives in
+    // 99_secret/keystores/ShopClipper-upload.jks and its passwords in
+    // %USERPROFILE%/.gradle/gradle.properties as SHOPCLIPPER_UPLOAD_*.
+    // Every value is orNull, so a PC without those properties still builds
+    // debug - only the release build needs them (規約 §12 V2).
+    // ⚠ ShopClipper is not on Google Play, so there is no Play App Signing:
+    // this key IS the app signing key and cannot be reset (計画書 D16).
+    signingConfigs {
+        create("upload") {
+            storeFile = providers.gradleProperty("SHOPCLIPPER_UPLOAD_STORE_FILE").orNull?.let { file(it) }
+            storePassword = providers.gradleProperty("SHOPCLIPPER_UPLOAD_STORE_PASSWORD").orNull
+            keyAlias = providers.gradleProperty("SHOPCLIPPER_UPLOAD_KEY_ALIAS").orNull
+            keyPassword = providers.gradleProperty("SHOPCLIPPER_UPLOAD_KEY_PASSWORD").orNull
+        }
+    }
+
     buildTypes {
         release {
+            // AGP 9 carries this block in place of isMinifyEnabled; the
+            // template generated it as false. Turning it on means the build
+            // that runs on the device is R8-optimized, so a class R8 removed
+            // shows up here rather than after release (計画書 R8・規約 §10.2).
             optimization {
-                enable = false
+                enable = true
             }
+            signingConfig = signingConfigs.getByName("upload")
         }
     }
     compileOptions {

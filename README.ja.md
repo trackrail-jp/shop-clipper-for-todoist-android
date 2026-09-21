@@ -11,8 +11,8 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **共通規約**: `..\Androidアプリ開発プロジェクト規約.md`（正本）。本 README には**このアプリ固有の事項だけ**を書く（コーディング規約 S6・S7／Android 規約 §11）
 - **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
 - **GitHub**: [`trackrail-jp/shop-clipper-for-todoist-android`](https://github.com/trackrail-jp/shop-clipper-for-todoist-android)（公開・MIT © 2026 TrackRail・既定ブランチ `main`）。2026-09-21 の I6 で作成して push した（計画書 D4・規約 §4.5）。**リモートがあっても `.git` の Dropbox 同期は続ける**
-- **配布**: 開発中は adb で自分の Pixel に入れる（計画書 D3）。自分のほかの端末へは **Android の「限定配布アカウント」（無料・政府発行 ID 不要・20 台まで）** で配る（計画書 **D14**・2026-09-21 決定）。Google Play には当面出さない
-- **状態**: 開発中（**I6.5＝README の英語化まで完了**。2026-09-21 に I6 の実機受け入れが通って GitHub へ push し、続けて入口の README を英語にした〈計画書 D15〉。次は **I7＝限定配布アカウントでの配布**＝計画書 D14・規約 §10.4）
+- **配布**: adb で自分の端末に入れる（計画書 D3）。**Google Play には出さない。** パッケージ名と署名鍵は、**既存の Google Play Console アカウント（`trackrail_jp`）の「Android デベロッパーの確認」に登録**した（計画書 **D16**・2026-09-21 決定。**限定配布アカウントは作らない**＝D14 を上書き）。詳細は下の「署名と配布」
+- **状態**: 開発中（**I7 の①〜④＝署名設定・R8 release の実機確認・パッケージ名と署名鍵の登録まで完了**。2026-09-21。残るは **I7 の⑤＝2 台目の端末での確認**と、後始末・知見の反映）
 
 ## 規約からの例外
 
@@ -64,6 +64,7 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-21 | 1 / 1.0 | 同上 | I4: 設定画面。**ユーザーが端末でトークンを入力**（Claude は見ていない）→「接続OK（プロジェクト 36 件）」（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_接続テスト_Pixel9Pro.png)）→ 既定の登録先「🛒 購入候補・単発 / 00 📥 未整理」・サイト別ラベル ON で保存（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_保存_Pixel9Pro.png)）→ `am force-stop` 後に開き直しても残り、自動の接続テストが通る（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_開き直して復元_Pixel9Pro.png)）。`adb logcat` 918 行に `Bearer` 0 件・40 桁 16 進 0 件。`files/datastore/settings.preferences_pb` は 331 バイトで、トークンは 92 文字の Base64（IV＋暗号文＋タグ）だけ | 109 件 ／ 442 分岐・100% | ✅ |
 | 2026-09-21 | 1 / 1.0 | 同上 | I5: 共有 → フォーム → 登録の受け入れ（計画書 §9 の I5）。①Amazon アプリから共有 → 追加 → Todoist で件名（リンク形式・100 字）・説明欄（【メモ】【商品名】【ASIN】【取込元】が空行 1 つ区切り）・ラベル `Shopping_Amazon`・登録先を確認（**価格を入れなかったので【現在価格】は出ない＝D6 どおり**）。②優先度 **P1** で送ったタスクが Todoist で P1 → **API の `priority=4` が P1**（計画書 R3 を解決）。③同じ ASIN の既存タスクで**重複の警告**。④解決できない短縮 URL で **D8 の警告**（[画面](./docs/20260920_共有からTodoist登録/証跡/I5_D8警告_短縮URL解決失敗_Pixel9Pro.png)）。機内モードの共有ではオフライン時の警告 2 件（[画面](./docs/20260920_共有からTodoist登録/証跡/I5_機内モード_オフライン警告_Pixel9Pro.png)）。⑤Chrome で対応外のページ → 「ページ名＋URL」＋【ページ名】＋【取込元】`Androidアプリ（共有）`・ラベルなし。`find-tasks` と `find-activity` の両方で、登録したタスクの client が `Dalvik/…Pixel 9 Pro`＝アプリ自身であることを確認（S10）。テスト用の 3 件は承認のうえ削除（D10） | 123 件 ／ 476 分岐・99.37% | ✅ |
 | 2026-09-21 | 1 / 1.0 | 同上 | I6: 仕上げ。①**新しいアイコン**が端末で出る（[画面](./docs/20260920_共有からTodoist登録/証跡/I6_アイコン_Pixel9Pro.png)。Pixel は円形マスク）。②`adb` の `am start … SEND` でヨドバシの商品 URL を共有 → フォームに**重複の警告**（実データ）・商品コード・登録先（🛒 購入候補・単発 / 00 📥 未整理）・ラベル `Shopping_ヨドバシ`・P4・`85 / 500 文字`（[画面](./docs/20260920_共有からTodoist登録/証跡/I6_共有フォーム_Pixel9Pro.png)）。③**今回直した表示**: 端末の Private DNS を存在しないホストにして `api.todoist.com` の名前解決だけを止め（adb は IP 接続なので生きたまま）、同じ共有を送ると、選択欄の代わりに **「登録先: 🛒 購入候補・単発 / 00 📥 未整理」** が出た（[画面](./docs/20260920_共有からTodoist登録/証跡/I6_一覧が読めないときの登録先_Pixel9Pro.png)）。確認後に Private DNS を元の `off` へ戻し、`ping api.todoist.com` が通ることを確かめた。**タスクは 1 件も作っていない** | 124 件 ／ 476 分岐・99.37%（命令 96.53%） | ✅ |
+| 2026-09-21 | 1 / 1.0 | 同上 | I7: **R8 を有効にした release ビルド**（`optimization { enable = true }`・アプリ署名鍵で署名）。debug をアンインストールして `adb install` → `am start -W` が **Status: ok / COLD / 269ms**、`ResumedActivity` が `MainActivity`（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_release初回起動_設定初期化_Pixel9Pro.png)。データが消えるので設定は初期値に戻る）。ユーザーがトークンを入れ直し、**接続OK（プロジェクト 36 件）**。`am start … SEND` で §2 の S1（TINMORRY TPU・短縮 URL 付き）を送ると、短縮 URL が `dp/B0CLD7LW4T` に解決され、登録先・`Shopping_Amazon`・`100 / 500 文字` が入った（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_release共有フォーム_Pixel9Pro.png)）→ **「追加」で登録成功**（[画面](./docs/20260920_共有からTodoist登録/証跡/I7_release追加しました_Pixel9Pro.png)）。Todoist で件名・説明欄（【商品名】→【ASIN】→【取込元】。**価格未入力なので【現在価格】なし**）・ラベル・P4・🛒 購入候補・単発 / 00 📥 未整理 を確認し、`find-activity` の client が `Dalvik/…Pixel 9 Pro` であることも確認（S10）。**テスト登録の 1 件は承認のうえ削除**（D10）。logcat 2,374 行に例外 0 件・`Bearer` 0 件 | コード変更なし（124 件 ／ 99.37% のまま） | ✅ |
 
 ## lint 警告（2026-09-21・I6 で 0 件にした）
 
@@ -88,6 +89,30 @@ buildscript {
 と固定した。`gradlew buildEnvironment` が `kotlin-gradle-plugin:2.2.10 -> 2.4.20` と出れば効いている。これで kotlinx-serialization-json も 1.11.0（Kotlin 2.4 系）に上げられる。**Studio 側は Gradle Sync が 1 回要る。**
 
 ⚠️ **Kotlin 2.4 は最初の `!!` のあと val を smart-cast する**ので、`post.body!!` を繰り返すと「Unnecessary non-null assertion」が 15 件出た。ローカルの `val` に受け直して 0 件にした。
+
+## 署名と配布（I7・計画書 D16）
+
+🔴 **Play App Signing は使わない。** Google Play に出さないので、`ShopClipper-upload.jks` の鍵が**そのままアプリ署名鍵**。失うと `jp.trackrail.shopclipper` を更新も再登録もできず、**Play Console からリセットを申請する道も無い**（規約 §9 の「アップロード鍵を失ってもリセットできる」は Play App Signing 前提で、本アプリには当てはまらない）。ファイル名の `upload` は規約 §9 の命名に合わせただけで、実体はアップロード鍵ではない。
+
+| 項目 | 値（2026-09-21 実測） |
+|---|---|
+| 鍵 | `C:\Dropbox\software\AndroidStudio\99_secret\keystores\ShopClipper-upload.jks`（PKCS12・4,296 バイト）。Dropbox 同期 `StorageProviderState=3`、ルートの `.gitignore:15` の `/99_secret/` で Git から除外（`git ls-files` に 0 件） |
+| 鍵の作成 | `keytool -genkeypair -storetype PKCS12 -alias upload -keyalg RSA -keysize 4096 -validity 10000 -dname "CN=TrackRail, O=TrackRail, C=JP"`。**実行とパスワード入力はユーザー。Claude は見ていない** |
+| 証明書 SHA-256 | `E8:62:6D:B8:63:6E:71:87:FC:0C:54:B4:0E:32:AF:75:EC:F8:AA:57:A3:E5:E1:80:07:FC:DB:24:BD:D2:86:93`（有効期限 2054-02-06） |
+| パスワード | `%USERPROFILE%\.gradle\gradle.properties` の `SHOPCLIPPER_UPLOAD_*`（Dropbox の外＝規約 §9）。**PKCS12 はストアと鍵が同じパスワード** |
+| release APK | `app/build/outputs/apk/release/app-release.apk` ＝ **1,554,826 バイト**（debug 12.26 MB → **1.48 MB**）。`apksigner verify` が **v2 scheme** で検証 OK、DN は `CN=TrackRail, O=TrackRail, C=JP` |
+| 登録先 | Google Play Console（`trackrail_jp`・個人用）の「**Android デベロッパーの確認**」→ パッケージ名 `jp.trackrail.shopclipper`（表示名 `ShopClipper`）。SHA-256 を登録 → **ステータス「審査中」**、パッケージ自体は「未公開」 |
+
+**I7 で分かったこと**
+
+- 🔴 **AGP 9 では `isMinifyEnabled` ではなく `optimization { enable = true }`** で R8 を有効にする（テンプレートが `false` で生成している）。これで `minifyReleaseWithR8` タスクが走ることを実測した。規約 §9 の雛形は `isMinifyEnabled` なので、AGP 9 のプロジェクトでは読み替える。
+- **`signingConfigs` を `providers.gradleProperty(...).orNull` で書けば、プロパティが無い PC でも debug は通る**。`gradle.properties` が存在しない状態で `:app:assembleDebug` が BUILD SUCCESSFUL することを実測（規約 §12 V2 の半分）。
+- **SHA-256 は `gradlew :app:signingReport` で読める**（パスワードは出力されない）。⚠️ **鍵が読めなくてもビルドは成功する**: release の行に `Error: Failed to read key … keystore password was incorrect` と出るだけで `BUILD SUCCESSFUL` になるため、フィンガープリントの行が出ているかを必ず見る。
+- ⚠️ **`.properties` のパスワード行が空でも同じエラーになる。** `Read-Host` を含む複数行を 1 度に貼ると入力を取り逃すことがあるので、書けた値の**文字数だけ**を確かめる（値は表示しない）。
+- **release ビルドでは `run-as` が使えない**（`package not debuggable`）。I4 でやった `files/datastore/…` の直接確認は debug 限定。
+- 🔴 **debug から release へは上書きインストールできない**（署名が違う）。アンインストールが要り、**端末内のトークンと設定は消える**（Keystore の鍵も一緒に消えるので、ファイルが残っても読めない＝R6 のとおり「未設定」扱い）。**ユーザーの承認を取ってから行う。**
+- **`input tap` の座標は `uiautomator dump` から採る**（画面 1280×2856）。Compose のボタンもアクセシビリティ ツリーに `text="追加"` で出るので、`bounds` の中心を計算すれば当たる。
+- logcat に 40 桁 16 進が出ても、`com.android.systemui` の `go/retraceme <hash>`（R8 の retrace ID）のことがある。**プロセスで切り分ける**（アプリの pid 由来が 0 件ならトークンの漏れではない）。
 
 ## アプリ固有の知見・インシデント
 
@@ -133,3 +158,4 @@ buildscript {
 | 2026-09-21 | 配布の方法を決めた（計画書 **D14**）。Google Play ではなく **Android の「限定配布アカウント」**（無料・政府発行 ID 不要・20 台まで）で配る。実作業は新しい増分 **I7**。判断の材料（開発者確認の全世界展開・Play の 12 人 × 14 日）は計画書 §3、共通の知見は規約 §10.4 |
 | 2026-09-21 | I6: 仕上げ。①I5 の受け入れで出た宿題（登録先の一覧を読めないとき、選択欄が「（インボックス・既定）」と出て実際の登録先と食い違う）を直した（`ShareUiState.destinationsLoaded`。一覧が届くまでは保存済みの登録先名を出す）。②**アイコンを Chrome 拡張と同じ意匠に差し替え**（ベクター＋各解像度の webp）。③テンプレートの `colors.xml` を削除。④**依存の版をまとめて上げた**（androidx・Kover・Gradle ラッパー・Kotlin 2.4.20・serialization 1.11.0）。⑤`LICENSE`（MIT © 2026 TrackRail）を追加。単体テスト 124 件・C1 99.37%・lint エラー 0/警告 0 |
 | 2026-09-21 | I6.5: **README を英語化**（計画書 D15）。このファイルを `README.md` → **`README.ja.md`** へ `git mv` で改名（履歴は保たれる）し、冒頭に相互リンクを置いた。英語の `README.md` を新設し、**概要・機能・対応サイト・タスクの書式・要件・インストール・初回設定・データの扱い・ビルドとチェック・拡張との関係・ライセンス**を載せた。**受け入れ記録・lint の内訳・Kover の対象外・二重管理の表は英訳せず**、英語版からこのファイルへリンクした。これは ShopClipper 固有の扱いではなく**公開リポジトリ共通のルール**として規約 §4.5・§11 に反映した |
+| 2026-09-21 | I7（①〜④）: **署名と登録**（計画書 D16）。①ユーザーが `keytool` でアプリ署名鍵を作成（PKCS12・RSA 4096・10000 日）、`signingConfigs` を `app/build.gradle.kts` に追加。②**AGP 9 の `optimization { enable = true }`** で R8 を有効化し、release APK を 1.48 MB（debug 12.26 MB）で生成。③debug をアンインストールして release を実機へ入れ、起動・共有・登録まで実データで確認（受け入れ記録の I7 行）。④**登録先を限定配布アカウントから既存の Play Console アカウントへ変更**（D16。20 台の上限と端末ごとの承認が不要になる）し、`jp.trackrail.shopclipper` ＋ SHA-256 を登録 → 審査中。知見は規約 §9・§10.4・§12 V2 と本ファイルの「署名と配布」に反映。**残り: I7 の⑤＝2 台目の端末での確認** |

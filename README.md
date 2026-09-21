@@ -67,13 +67,15 @@ Androidアプリ（Amazon共有）
 
 ## Install
 
-There is no Play Store listing. Build it yourself (see below) and install it over adb:
+There is no Play Store listing, and there is not going to be one. Build it yourself (see below) and install it over adb:
 
 ```text
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install app/build/outputs/apk/release/app-release.apk
 ```
 
-Distributing it to a second personal device through Android's *limited distribution* developer account is planned, but not done yet.
+The release build is signed with the author's own key, and its package name and signing certificate are registered for Android developer verification, so it installs on certified devices. Building a signed release needs the signing properties described in [README.ja.md](./README.ja.md); a debug build works without them.
+
+A release build cannot be installed over a debug one, or the other way round — the signing keys differ, so Android refuses the update. Uninstall first, which also clears the stored token and settings.
 
 ## First run
 

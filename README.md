@@ -8,7 +8,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
 - **GitHub**: `trackrail-jp/shop-clipper-for-todoist-android`（公開・MIT © 2026 TrackRail）を受け入れ後に作って push する予定（計画書 D4）。まだリモートは無い
 - **配布**: adb で自分の Pixel に入れる（計画書 D3）。Google Play は別途判断
-- **状態**: 開発中（I3＝純粋ロジックと単体テストまで完了。次は I4＝設定画面とトークンの保存）
+- **状態**: 開発中（I4＝設定画面とトークンの保存まで完了。次は I5＝共有 → フォーム → 登録）
 
 ## 規約からの例外
 
@@ -27,6 +27,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 | CLI の `JAVA_HOME` | Android Studio 同梱の JBR 25（`C:\Program Files\Android\Android Studio\jbr`）。Gradle 9.1 以上のため（規約 §7.2）。Daemon JVM の条件もこれで満たし、JDK の追加ダウンロードは起きない |
 | 主な依存 | Compose BOM 2026.02.01・Material 3・activity-compose 1.8.0・core-ktx 1.10.1・lifecycle-runtime-ktx 2.6.1（いずれもテンプレートの生成値＝規約 §6.1） |
 | 追加した依存（I3） | kotlinx-serialization-json **1.9.0**＋コンパイラ プラグイン **2.2.10**（AGP 9.4.1 の built-in Kotlin が使う KGP が 2.2.10 のため同じ版。実行時ライブラリは Kotlin 2.2 系で作られた最後の版＝1.10.0 以降は Kotlin 2.3）／ kotlinx-coroutines-test **1.11.0**（テストのみ） |
+| 追加した依存（I4） | androidx.datastore:datastore-preferences **1.2.1**（そのときの最新安定版。1.3.0 は alpha）／ androidx.lifecycle:lifecycle-viewmodel-compose は**テンプレートの lifecycle と同じ 2.6.1** を宣言（Compose BOM 経由で実際には **2.9.4** に解決される。`gradlew :app:dependencies --configuration debugRuntimeClasspath` で確認） |
 | テスト | JVM 単体テスト（JUnit 4.13.2）＋ Kover 0.9.8（C1 90%） |
 | Minimum SDK をウィザード既定から変えた理由 | 既定のまま |
 
@@ -39,7 +40,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - `androidGeneratedClasses()`（Activity・Fragment・BuildConfig・R など）
 - `@Composable`（`@Preview` を含む）・`*ComposableSingletons*`・`*.ui.theme`
 - `@Serializable` のクラス（`annotatedBy("kotlinx.serialization.Serializable")`・I3 で追加）: kotlinx.serialization のプラグインが各モデルに `write$Self` を生成し、Kover はそれを分岐として数える（Todoist の 4 モデルだけで 140 分岐・40%）。モデルは値を持つだけで、JSON の形は `ModelsTest`・`TodoistClientTest` で確かめている
-- 今後足す予定（計画書 §8）: `KeystoreTokenCipher`・`UrlConnectionTransport`（端末の Keystore とネットワークが要るため実機で確かめる。I4）
+- `KeystoreTokenCipher*`・`UrlConnectionTransport*`（I4 で追加）: 端末の Keystore とネットワークが要るため、実機で確かめる。**末尾の `*` が要る**（suspend 関数の本体は `UrlConnectionTransport$execute$2` のような入れ子クラスに入るので、クラス名だけでは外れない）
 
 **I3 の計測（2026-09-20）**: 1 回目は 388 分岐中 17 未達（95.6%）で、計測が効いていることを確かめた。未達の多くは Kotlin の `?.` の連鎖と、比較の両側へ展開される inline のラムダが作る「到達しない分岐」だったので書き直し、実在する境界はテストを足した → **366 分岐・100%**（単体テスト 90 件）。
 
@@ -54,14 +55,15 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-20 | 1 / 1.0 | Pixel 9 Pro・Android 17 / API 37（Wi-Fi） | I1: debug APK を `adb install -r` → `am start -W` で `MainActivity` が前面（`ResumedActivity`）、「Hello Android!」を表示（[画面](./docs/20260920_共有からTodoist登録/証跡/I1_初回起動_Pixel9Pro.png)）。`dumpsys package` で versionCode=1・minSdk=24・targetSdk=37 | 1 件（`ExampleUnitTest`）／ 測る分岐 0 件 | ✅ |
 | 2026-09-20 | 1 / 1.0 | 同上 | I2: 共有シートに「ショップクリップ」が出て、受信画面（仮）が Amazon アプリ（2 商品）・ヨドバシ アプリ・Chrome からの共有を受け取った。原文を計画書 §2 に記録（[画面](./docs/20260920_共有からTodoist登録/証跡/I2_S1_Amazonアプリ.png)ほか）。`adb shell am start … -f 0x18080000` で S1・S5 を再現し、原文の一致を確認 | 1 件 ／ 測る分岐 0 件（受信画面は Activity なので対象外） | ✅ |
 | 2026-09-20 | 1 / 1.0 | 同上 | I3: 純粋ロジック（`core`・`todoist`・`share`）を追加。計画書 §2 の原文 5 件と短縮 URL の `Location` 5 件で、共有テキスト → 短縮 URL の解決 → タスクの本文までを単体テストで確認（`ShareToTaskTest`）。debug APK を入れ直し、`am start -W` で `MainActivity` が前面（新しいコードはまだ画面から呼ばれない） | 90 件 ／ 366 分岐・100% | ✅ |
+| 2026-09-21 | 1 / 1.0 | 同上 | I4: 設定画面。**ユーザーが端末でトークンを入力**（Claude は見ていない）→「接続OK（プロジェクト 36 件）」（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_接続テスト_Pixel9Pro.png)）→ 既定の登録先「🛒 購入候補・単発 / 00 📥 未整理」・サイト別ラベル ON で保存（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_保存_Pixel9Pro.png)）→ `am force-stop` 後に開き直しても残り、自動の接続テストが通る（[画面](./docs/20260920_共有からTodoist登録/証跡/I4_開き直して復元_Pixel9Pro.png)）。`adb logcat` 918 行に `Bearer` 0 件・40 桁 16 進 0 件。`files/datastore/settings.preferences_pb` は 331 バイトで、トークンは 92 文字の Base64（IV＋暗号文＋タグ）だけ | 109 件 ／ 442 分岐・100% | ✅ |
 
 ## 残している lint 警告
 
-2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。I2 で `RedundantLabel` を直し、**警告 16**。I3 で依存を足し、**警告 18**（kotlinx.serialization の 2 件が増えた）。
+2026-09-20（I1）の `lintDebug`: **エラー 0・警告 17**。I2 で `RedundantLabel` を直し、**警告 16**。I3 で依存を足し、**警告 18**（kotlinx.serialization の 2 件が増えた）。I4 で lifecycle-viewmodel-compose を足し、**警告 19**（エラーは 0 のまま）。
 
 | 警告 | 件数 | 残す理由 |
 |---|---|---|
-| `GradleDependency`・`NewerVersionAvailable`・`AndroidGradlePluginVersion`（core-ktx・lifecycle・activity-compose・Compose BOM・androidx.test・Kotlin の compose／serialization プラグイン 2.4.20・kotlinx-serialization-json 1.11.0・Kover 0.9.9・Gradle 9.7.1 が出ている） | 11 | **I3 で「上げない」と決めた**。版はテンプレートの生成値を採用し、手で 1 つずつ上げない（規約 §6.1）。Kotlin のプラグインと serialization は AGP 9.4.1 の built-in Kotlin（KGP 2.2.10）に合わせてある（上げるには KGP を buildscript で上書きする必要がある）。I4 で DataStore・lifecycle-viewmodel-compose を足すと androidx の版が引きずられて上がるので、そのときにもう一度判断する |
+| `GradleDependency`・`NewerVersionAvailable`・`AndroidGradlePluginVersion`（core-ktx・lifecycle-runtime-ktx・lifecycle-viewmodel-compose・activity-compose・Compose BOM・androidx.test・Kotlin の compose／serialization プラグイン 2.4.20・kotlinx-serialization-json 1.11.0・Kover 0.9.9・Gradle 9.7.1 が出ている） | 12 | **I3 で「上げない」と決めた**。版はテンプレートの生成値を採用し、手で 1 つずつ上げない（規約 §6.1）。Kotlin のプラグインと serialization は AGP 9.4.1 の built-in Kotlin（KGP 2.2.10）に合わせてある（上げるには KGP を buildscript で上書きする必要がある）。**I4 でも上げなかった**: lifecycle-viewmodel-compose はテンプレートの lifecycle と同じ 2.6.1 を宣言し、Compose BOM 経由で 2.9.4 に解決されることを `gradlew :app:dependencies` で確かめた（宣言を上げても実際の版は変わらない）。まとめて上げるのは I6（仕上げ）で判断する |
 | `UnusedResources`（テンプレートの `colors.xml` の 7 色） | 7 | テンプレートのまま。I6（仕上げ）で整理する |
 | ~~`RedundantLabel`（`MainActivity` の `android:label` がアプリ名と同じ）~~ | 0 | I2 で直した（`MainActivity` の `android:label` を削除） |
 
@@ -70,6 +72,13 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 （番号は `INC-SC-NNN`。複数のアプリに効く知見は共通規約へ移す）
 
 - まだ無い。I1 で分かった Kover の挙動（分岐 0 件では閾値 100 でも通る・Gradle 9.6 での非推奨警告）と、I3 で分かったこと（Kover が `@Serializable` の生成コードや `?.` の連鎖を分岐として数える・built-in Kotlin の KGP の版の確かめ方・minSdk 24 で使えない API）は、複数のアプリに効くので共通規約 §6.1・§6.2 に書いた
+
+## データの扱い（計画書 R7・D6）
+
+- **Todoist の API トークンは、この端末の中だけ**に置く。Android Keystore の鍵（端末から取り出せない）で AES-256-GCM で暗号化し、暗号文だけを DataStore（`files/datastore/settings.preferences_pb`）に書く。**バックアップと端末間コピーの対象から外している**（`res/xml/backup_rules.xml`・`data_extraction_rules.xml`）。鍵が無くなって復号できないときは「未設定」として扱い、入れ直してもらう（計画書 R6）。
+- **ログに出さない**: トークンと `Authorization` ヘッダーはどこにも書き出さない。`HttpRequest.toString()` と `Settings.toString()`・`SettingsUiState.toString()` は伏せ字にする。2026-09-21 の実機確認では `adb logcat` 918 行に `Bearer` も 40 桁 16 進も 0 件だった。
+- **通信先は 2 つだけ**: Todoist API（`https://api.todoist.com/api/v1/…`）と、Amazon の短縮 URL（`https://amzn.asia/…`）の転送先を調べるための GET 1 回。**商品ページ本体は取りに行かない**（計画書 D6）。価格は手入力で、ページからは読まない。
+- 共有されたテキストは解析するだけで、`clipData` の画像（Chrome が付けてくるサムネイル）は読まない。
 
 ## Chrome 拡張との二重管理（計画書 §6・R5）
 
@@ -93,3 +102,4 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-20 | 作成（I1）。Empty Activity から作成、雛形・Kover 0.9.8 を入れ、計画書を `docs/` へ移した。Pixel 9 Pro で起動を確認し、`gradlew` に実行権限を付けた（Windows の Git は `core.filemode=false` のため 100644 で入っていた） |
 | 2026-09-20 | I2: 共有を受け取る仮の画面（`ui/share/ShareActivity`）を足し、共有テキストを実測（計画書 §2）。「セール: 」は取り除く（計画書 D13） |
 | 2026-09-20 | I3: kotlinx.serialization（1.9.0／プラグイン 2.2.10）と kotlinx-coroutines-test（1.11.0）を追加。拡張の lib・core・sites・todoist を Kotlin へ移し（`core`・`todoist`・`net/HttpTransport`）、共有テキストの解析（`share/SharedTextParser`）と短縮 URL の解決（`share/ShortUrlResolver`）を新しく作った。Kover で `@Serializable` を対象外にした。「Chrome 拡張との二重管理」の節を追加 |
+| 2026-09-21 | I4: DataStore（1.2.1）と lifecycle-viewmodel-compose を追加。`net/UrlConnectionTransport`・`data/KeystoreTokenCipher`（AES-256-GCM）・`data/SettingsRepository`・設定画面（`ui/settings`＋`MainActivity`）を作り、`INTERNET` 権限とバックアップ除外を足した。アプリ名を「ショップクリップ for Todoist」に（計画書 D1）。「データの扱い」の節を追加 |

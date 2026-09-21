@@ -43,13 +43,15 @@ data class SettingsUiState(
     val busy: Boolean = false,
     val testNotice: Notice? = null,
     val saveNotice: Notice? = null,
+    // 一過性のフラグ（計画書 D17 ④）: 保存できた直後だけ true。ダイアログを閉じると false に戻る。
+    val justSaved: Boolean = false,
 ) {
     // ⛔ Never print the API token (logs, crash reports, test failures).
     override fun toString(): String =
         "SettingsUiState(loaded=$loaded, token=${if (token.isEmpty()) "" else "***"}, projects=${projects.size}, " +
             "sections=${sections.size}, projectId=$projectId, sectionId=$sectionId, labels=$labels, " +
             "siteLabels=$siteLabels, priority=$priority, titleLimit=$titleLimit, targetLabel=$targetLabel, " +
-            "busy=$busy, testNotice=$testNotice, saveNotice=$saveNotice)"
+            "busy=$busy, testNotice=$testNotice, saveNotice=$saveNotice, justSaved=$justSaved)"
 }
 
 // The settings screen's state and actions (計画書 §4 の「ランチャーのアイコン → 設定画面」).
@@ -151,11 +153,20 @@ class SettingsViewModel(
                     titleLimit = saved.titleLimit.toString(),
                     targetLabel = saved.targetLabel,
                     saveNotice = Notice("保存しました（既定の登録先: ${saved.targetLabel}）", ok = true),
+                    justSaved = true,
                 )
             } catch (e: IOException) {
-                _state.value.copy(saveNotice = Notice("保存できませんでした（${e.message}）", ok = false))
+                _state.value.copy(
+                    saveNotice = Notice("保存できませんでした（${e.message}）", ok = false),
+                    justSaved = false,
+                )
             }
         }
+    }
+
+    /** 保存できたダイアログを閉じる（D17 ④）。 */
+    fun dismissSaved() {
+        _state.value = _state.value.copy(justSaved = false)
     }
 
     private suspend fun connect() {

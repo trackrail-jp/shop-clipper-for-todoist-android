@@ -1,6 +1,9 @@
 package jp.trackrail.shopclipper
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -8,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import jp.trackrail.shopclipper.data.settingsRepository
@@ -46,9 +50,21 @@ class MainActivity : ComponentActivity() {
                         onPriority = viewModel::onPriorityChange,
                         onTitleLimit = viewModel::onTitleLimitChange,
                         onSave = viewModel::save,
+                        onOpenUrl = ::openUrl,
+                        onDismissSaved = viewModel::dismissSaved,
                     ),
                 )
             }
+        }
+    }
+
+    // 保存できたダイアログからの導線（計画書 D17 ⑤）。パッケージ名は書かず https の URL を
+    // ACTION_VIEW で渡すだけにする: App Links が効けばアプリが、無ければブラウザが開く。
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+        } catch (e: ActivityNotFoundException) {
+            Log.w("ShopClipper", "no app can open the url", e)
         }
     }
 }

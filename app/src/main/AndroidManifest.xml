@@ -25,12 +25,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- I2 (temporary): shows the shared text as received. Becomes the share form in I5. -->
+        <!-- The share form (計画書 §4). Transparent so that it sits over the app
+             the user shared from, and kept out of the recents list. -->
         <activity
             android:name=".ui.share.ShareActivity"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/share_label"
-            android:theme="@style/Theme.ShopClipper">
+            android:theme="@style/Theme.ShopClipper.Transparent">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 

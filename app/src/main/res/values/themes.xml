@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.ShopClipper" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- The share sheet sits on top of the app the user shared from (計画書 §4). -->
+    <style name="Theme.ShopClipper.Transparent" parent="Theme.ShopClipper">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
 </resources>

@@ -55,6 +55,14 @@ kover {
                 // model (140 branches for the 4 Todoist models, measured 2026-09-20).
                 // The models only hold fields; their JSON is tested in ModelsTest.
                 annotatedBy("kotlinx.serialization.Serializable")
+                // Need the device itself (the Keystore and the network); checked
+                // by hand on the device instead (計画書 §8・I4/I5).
+                // The "*" also takes the lambda classes the compiler generates
+                // inside them (UrlConnectionTransport$execute$2 and friends).
+                classes(
+                    "jp.trackrail.shopclipper.data.KeystoreTokenCipher*",
+                    "jp.trackrail.shopclipper.net.UrlConnectionTransport*",
+                )
             }
         }
         verify {
@@ -76,6 +84,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))

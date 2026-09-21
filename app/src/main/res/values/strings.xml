@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">ShopClipper</string>
+    <!-- App name (計画書 D1). The folder and the applicationId stay ShopClipper. -->
+    <string name="app_name">ショップクリップ for Todoist</string>
     <!-- Label shown in the Android share sheet (plan D1) -->
     <string name="share_label">ショップクリップ</string>
 </resources>

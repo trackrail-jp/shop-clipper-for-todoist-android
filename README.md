@@ -7,7 +7,7 @@ Android の Amazon ショッピング アプリなどの「共有」から、Chr
 - **共通規約**: `..\Androidアプリ開発プロジェクト規約.md`（正本）。本 README には**このアプリ固有の事項だけ**を書く（コーディング規約 S6・S7／Android 規約 §11）
 - **元にした Chrome 拡張**: `C:\Dropbox\go_cloud_sync\projects\くろー_Chrome拡張_ショッピングサイトTodoist登録\repo\`（GitHub `trackrail-jp/shop-clipper-for-todoist`）。本件では**読むだけ**（計画書 D12）
 - **GitHub**: `trackrail-jp/shop-clipper-for-todoist-android`（公開・MIT © 2026 TrackRail）を受け入れ後に作って push する予定（計画書 D4）。まだリモートは無い
-- **配布**: adb で自分の Pixel に入れる（計画書 D3）。Google Play は別途判断
+- **配布**: 開発中は adb で自分の Pixel に入れる（計画書 D3）。自分のほかの端末へは **Android の「限定配布アカウント」（無料・政府発行 ID 不要・20 台まで）** で配る（計画書 **D14**・2026-09-21 決定）。Google Play には当面出さない
 - **状態**: 開発中（**I5＝共有 → フォーム → 登録まで完了**。2026-09-21 に実機の受け入れが通った。次は I6＝仕上げ・GitHub へ push）
 
 ## 規約からの例外
@@ -108,3 +108,4 @@ HTML レポート（`app/build/reports/kover/htmlDebug/index.html`）には、`M
 | 2026-09-21 | I4: DataStore（1.2.1）と lifecycle-viewmodel-compose を追加。`net/UrlConnectionTransport`・`data/KeystoreTokenCipher`（AES-256-GCM）・`data/SettingsRepository`・設定画面（`ui/settings`＋`MainActivity`）を作り、`INTERNET` 権限とバックアップ除外を足した。アプリ名を「ショップクリップ for Todoist」に（計画書 D1）。「データの扱い」の節を追加 |
 | 2026-09-21 | I5: 共有シートの本体（`ui/share/ShareViewModel`・`ShareSheet`・本物の `ShareActivity`）を作り、設定画面と共用の選択肢を `ui/common/Pickers` に出した。`ShareActivity` を透過テーマ＋`excludeFromRecents` にして、送り元のアプリの上にボトムシートが出るようにした。I2 のデバッグ用の保存（`files/i2_samples.txt`）を消し、端末に残っていたファイルも消した。依存の追加は無し |
 | 2026-09-21 | I5 の**受け入れ**（実機 5 項目）。計画書 R3 を解決（Todoist の優先度は `4`＝P1）。機内モードでの Amazon アプリの挙動と D8 の確かめ方を「アプリ固有の知見」に追加し、受け入れ記録に 1 行足した。一覧が読めないときの登録先の表示のずれは I6 の宿題（計画書 §11） |
+| 2026-09-21 | 配布の方法を決めた（計画書 **D14**）。Google Play ではなく **Android の「限定配布アカウント」**（無料・政府発行 ID 不要・20 台まで）で配る。実作業は新しい増分 **I7**。判断の材料（開発者確認の全世界展開・Play の 12 人 × 14 日）は計画書 §3、共通の知見は規約 §10.4 |

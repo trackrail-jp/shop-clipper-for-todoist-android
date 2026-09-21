@@ -3,7 +3,10 @@ package jp.trackrail.shopclipper.todoist
 // Ported from the Chrome extension's todoist.js (v2.0.0).
 
 /** A failure worth showing to the user. [status] is the HTTP status, 0 when there was none. */
-class TodoistError(message: String, val status: Int = 0) : Exception(message)
+class TodoistError(message: String, val status: Int = 0) : Exception(message) {
+    /** The same message, but never null (unlike [Throwable.message]), so screens can show it as is. */
+    val text: String = message
+}
 
 fun messageFor(status: Int, detail: String = ""): String {
     val tail = if (detail.isNotEmpty()) "（${detail.take(200)}）" else ""

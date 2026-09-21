@@ -210,6 +210,21 @@ class SettingsViewModelTest {
         model.load()
         model.save()
         assertEquals(Notice("保存できませんでした（disk full）", ok = false), model.state.value.saveNotice)
+        assertFalse(model.state.value.justSaved) // 失敗したときは「保存しました」を出さない（D17 ④）
+    }
+
+    @Test
+    fun savingOpensTheDoneDialogUntilItIsDismissed() = runTest {
+        val model = SettingsViewModel(FakeSettingsStore(mapOf("token" to "tok")), transport())
+        model.load()
+        assertFalse(model.state.value.justSaved)
+        model.save()
+        // D17 ④: 画面下の小さな通知だけでは気づかないので、一過性のフラグでダイアログを出す。
+        assertTrue(model.state.value.justSaved)
+        model.dismissSaved()
+        assertFalse(model.state.value.justSaved)
+        // 閉じたあとも通知の文字は残る。
+        assertTrue(model.state.value.saveNotice!!.ok)
     }
 
     @Test
